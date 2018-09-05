@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hcl_poc.constant.Constants;
-import com.hcl_poc.model.CategoryData;
+import com.hcl_poc.dao.CategoryData;
+import com.hcl_poc.dao.ResponseFormat;
+import com.hcl_poc.dao.RoleData;
 import com.hcl_poc.model.CategoryModel;
 import com.hcl_poc.model.ChangePasswordModel;
 import com.hcl_poc.model.RecordEntryModel;
@@ -48,16 +50,36 @@ public class UserService {
 	SearchItemRepository searchRepo;
 	@Autowired
 	RecordEntryRepository recordRepo;
+	/*@Autowired
+	ResponseFormat responseTemplate;*/
 
 	// Register User
-	public String registerUser(UserModel data) {
-		UserModel save = repo.save(data);
-		if (save != null) {
-			return "You have Successfully Registered";
-		} else {
-			return "Registration Failed";
-		}
+	public ResponseFormat registerUser(UserModel data) {
+		String email = data.getEmailId();
+		//getting all users from database
+		ResponseFormat responseTemplate = new ResponseFormat();
+		List<UserModel> userList = repo.findAll();
+		boolean isEmail = userList.contains(email);
+		if (isEmail) {
+			responseTemplate.setStatus(0);
+			responseTemplate.setMessage("This email is already register ");
+			return responseTemplate;
 
+		} else {
+			UserModel userData = repo.save(data);
+			if (userData != null) {
+				responseTemplate.setStatus(1);
+				responseTemplate.setMessage("You are successfully registered");
+				return responseTemplate;
+				// return "You have Successfully Registered";
+			} else {
+				responseTemplate.setStatus(0);
+				responseTemplate.setMessage("Registration Failed! Please try again ");
+				return responseTemplate;
+				// return "Registration Failed";
+			}
+
+		}
 	}
 
 	// To find all users from DB
@@ -66,21 +88,27 @@ public class UserService {
 	}
 
 	// Login the existing user
-	public String login(String email, String password) {
+	public ResponseFormat login(String email, String password) {
 		List<UserModel> userList = repo.findAll();
 		boolean isEmail = userList.contains(repo.getOne(email));
-
+		ResponseFormat responseTemplate = new ResponseFormat();
 		if (isEmail) {
 			UserModel userData = repo.findById(email).get();
 			if (password.trim().equals(userData.getPassword().trim())) {
-				return "Logged In Successfully" + email + ": " + password + ">>>>>>" + userData.getEmailId() + ":"
-						+ userData.getPassword();
+				responseTemplate.setStatus(1);
+				responseTemplate.setMessage("Logged In Successfully");
+				return responseTemplate;
 
-			} else
-				return "Login failed. Please enter valid password " + email + ": " + password + ">>>>>>"
-						+ userData.getEmailId() + ":" + userData.getPassword();
+			} else {
+				responseTemplate.setStatus(0);
+				responseTemplate.setMessage("Please enter valid password ");
+				return responseTemplate;	
+			}
 		} else {
-			return "Email does not exist ";
+			responseTemplate.setStatus(0);
+			responseTemplate.setMessage("Please enter valid Email ");
+			return responseTemplate;
+			
 		}
 	}
 
@@ -148,22 +176,24 @@ public class UserService {
 	}
 
 	// Send Password to the users email id
-	public String forgetPassword(String id) {
-		String response = "";
+	public ResponseFormat forgetPassword(String id) {
+		ResponseFormat response = new ResponseFormat();
 		UserModel userModel = repo.findById(id).get();
 		if (userModel != null) {
 			String password = userModel.getPassword();
 			// now send this password to his email id
 			response = sendPswdToEmail(id, password);
 		} else {
-			response = "Please enter valid email ";
+			response.setStatus(0);
+			response.setMessage("Please enter valid email");
+			
 		}
 
 		return response;
 	}
 
-	private String sendPswdToEmail(String recepientEmail, String passwordToBeSent) {
-		String response = "";
+	private ResponseFormat sendPswdToEmail(String recepientEmail, String passwordToBeSent) {
+		ResponseFormat response = new ResponseFormat();
 		// Get properties object
 		Properties props = new Properties();
 		props.put("mail.smtp.host", "smtp.gmail.com");
@@ -185,19 +215,30 @@ public class UserService {
 			message.setText(Constants.EMAIL_BODY + " " + passwordToBeSent);
 			// send message
 			Transport.send(message);
-			response = "Mail sent Successfully";
+			response.setStatus(1);
+			response.setMessage( "Mail sent Successfully");
 			System.out.println("Mail sent successfully");
 		} catch (MessagingException e) {
-			response = e.getMessage().toString();
+			response.setStatus(0);
+			response.setMessage(e.getMessage().toString());
 			throw new RuntimeException(e);
 		}
 		return response;
 	}
 
 	// To get the roles
-	public List<RoleModel> getRoles() {
+	public RoleData getRoles() {
 
-		return roleRepo.findAll();
+		List<RoleModel> roles = roleRepo.findAll();
+		RoleData data = new RoleData();
+		if(roles != null) {
+			data.setStatus(1);
+			data.setMessage("Get All Roles");
+			data.setRoleList(roles);
+			
+		}
+		
+		return data;
 	}
 
 	// Get CategoryList
@@ -207,6 +248,8 @@ public class UserService {
 		List<SubCategoryModel> subCatList = subCatRepo.findAll();
 
 		CategoryData data = new CategoryData();
+		data.setStatus(1);
+		data.setMessage("Category List");
 		data.setCatList(catList);
 		data.setSubCatList(subCatList);
 
@@ -221,15 +264,34 @@ public class UserService {
 		return searchData;
 	}
 
-	public String enterRecord(RecordEntryModel entryData) {
-		String response = "";
-		RecordEntryModel recordEntryModel = recordRepo.save(entryData);
-		if (recordEntryModel != null) {
-			response = "Record is saved successfully";
-		} else {
-			response = "Record saved is failed ! Plz try again.";
-		}
-		return response;
+	public ResponseFormat enterRecord(RecordEntryModel entryData) {
+		
+		String email = entryData.getEmail_id();
+		//getting all users from database
+		ResponseFormat responseTemplate = new ResponseFormat();
+		List<UserModel> userList = repo.findAll();
+		boolean isEmail = userList.contains(email);
+		/*if (!isEmail) {
+			responseTemplate.setStatus(0);
+			responseTemplate.setMessage("Your email is invalid ");
+			return responseTemplate;
+
+		} else {*/
+			RecordEntryModel recordEntryModel = recordRepo.save(entryData);
+			if (recordEntryModel != null) {
+				responseTemplate.setStatus(1);
+				responseTemplate.setMessage("Your entry has been successfully submitted");
+				return responseTemplate;
+				// return "You have Successfully Registered";
+			} else {
+				responseTemplate.setStatus(0);
+				responseTemplate.setMessage("Your entry is failed! Please try again ");
+				return responseTemplate;
+				// return "Registration Failed";
+			}
+
+		//}
+		
 	}
 	
 

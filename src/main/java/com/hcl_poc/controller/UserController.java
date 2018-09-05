@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hcl_poc.model.CategoryData;
+import com.hcl_poc.dao.CategoryData;
+import com.hcl_poc.dao.ResponseFormat;
+import com.hcl_poc.dao.RoleData;
 import com.hcl_poc.model.CategoryModel;
 import com.hcl_poc.model.RecordEntryModel;
 import com.hcl_poc.model.RoleModel;
@@ -30,8 +32,8 @@ public class UserController {
 	UserService service;
 
 	@PostMapping("/register")
-	public String register(@Valid @RequestBody UserModel data) {
-		String response = service.registerUser(data);
+	public ResponseFormat register(@Valid @RequestBody UserModel data) {
+		ResponseFormat response = service.registerUser(data);
 		return response;
 	}
 
@@ -42,9 +44,9 @@ public class UserController {
 	}
 
 	@GetMapping("/login/{email}/{password}")
-	public String login(@PathVariable(value = "email") String email,
+	public ResponseFormat login(@PathVariable(value = "email") String email,
 			@PathVariable(value = "password") String password) {
-		String response = service.login(email, password);
+		ResponseFormat response = service.login(email, password);
 		return response;
 
 	}
@@ -56,8 +58,8 @@ public class UserController {
 	}
 
 	@GetMapping("/roles")
-	public List<RoleModel> getRoles() {
-		List<RoleModel> roleList = service.getRoles();
+	public RoleData getRoles() {
+		RoleData roleList = service.getRoles();
 		return roleList;
 	}
 
@@ -79,8 +81,8 @@ public class UserController {
 
 	// find user by id
 	@GetMapping("/forgetpswd/{id}")
-	public String forgetPswd(@PathVariable(value = "id") String id) {
-		String response = service.forgetPassword(id);
+	public ResponseFormat forgetPswd(@PathVariable(value = "id") String id) {
+		ResponseFormat response = service.forgetPassword(id);
 		return response;
 	}
 
@@ -93,8 +95,9 @@ public class UserController {
 	
 	
 	@PostMapping("/recordEntry")
-	public String enterRecord(@Valid @RequestBody RecordEntryModel entryData) {
-		String response = service.enterRecord(entryData);
+	public ResponseFormat enterRecord(@Valid @RequestBody RecordEntryModel entryData) {
+		
+		ResponseFormat response = service.enterRecord(entryData);
 		return response;
 	}
 	

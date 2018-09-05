@@ -11,7 +11,7 @@ public class RoleModel {
 	@Id
 	private int id;
 	private String role_name;
-	
+		
 	public int getId() {
 		return id;
 	}
