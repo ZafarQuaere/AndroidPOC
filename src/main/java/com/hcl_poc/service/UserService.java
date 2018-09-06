@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import com.hcl_poc.constant.Constants;
 import com.hcl_poc.dao.CategoryData;
+import com.hcl_poc.dao.ReportsData;
 import com.hcl_poc.dao.ResponseFormat;
 import com.hcl_poc.dao.RoleData;
 import com.hcl_poc.model.CategoryModel;
@@ -295,7 +296,8 @@ public class UserService {
 	}
 	
 
-	public List<RecordEntryModel> getAllRecords(String email) {
+	public ReportsData getAllRecords(String email) {
+		ReportsData response = null;
 		List<RecordEntryModel> recordList = new ArrayList<RecordEntryModel>();
 
 		List<RecordEntryModel> allData = recordRepo.findAll();
@@ -310,10 +312,16 @@ public class UserService {
 				}
 			}
 	
+			
+			response = new ReportsData();
+			response.setStatus(1);
+			response.setMessage("ReportList");
+			response.setRecordListData(recordList);
+			
 //		} else {
 //			return null;
 //		}
-		return recordList;
+		return response;
 	}
 
 }

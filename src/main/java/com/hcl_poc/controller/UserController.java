@@ -15,11 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hcl_poc.dao.CategoryData;
+import com.hcl_poc.dao.ReportsData;
 import com.hcl_poc.dao.ResponseFormat;
 import com.hcl_poc.dao.RoleData;
-import com.hcl_poc.model.CategoryModel;
 import com.hcl_poc.model.RecordEntryModel;
-import com.hcl_poc.model.RoleModel;
 import com.hcl_poc.model.SearchData;
 import com.hcl_poc.model.UserModel;
 import com.hcl_poc.service.UserService;
@@ -108,8 +107,8 @@ public class UserController {
 	}
 
 	@GetMapping("/getRecords/{email}")
-	public List<RecordEntryModel> getRecords( @PathVariable(value="email") String email){
-			List<RecordEntryModel> recordList = service.getAllRecords(email);
+	public ReportsData getRecords(@PathVariable(value = "email") String email) {
+		ReportsData recordList = service.getAllRecords(email);
 		return recordList;
 	}
 }
