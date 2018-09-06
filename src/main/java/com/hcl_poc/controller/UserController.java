@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hcl_poc.dao.CategoryData;
+import com.hcl_poc.dao.IdentitiesData;
 import com.hcl_poc.dao.ReportsData;
 import com.hcl_poc.dao.ResponseFormat;
 import com.hcl_poc.dao.RoleData;
@@ -110,5 +111,11 @@ public class UserController {
 	public ReportsData getRecords(@PathVariable(value = "email") String email) {
 		ReportsData recordList = service.getAllRecords(email);
 		return recordList;
+	}
+	
+	@GetMapping("/getIdentities")
+	public IdentitiesData getIdentityNoData(){
+		IdentitiesData searchList = service.getIdentities();
+		return searchList;
 	}
 }

@@ -18,17 +18,20 @@ import org.springframework.stereotype.Service;
 
 import com.hcl_poc.constant.Constants;
 import com.hcl_poc.dao.CategoryData;
+import com.hcl_poc.dao.IdentitiesData;
 import com.hcl_poc.dao.ReportsData;
 import com.hcl_poc.dao.ResponseFormat;
 import com.hcl_poc.dao.RoleData;
 import com.hcl_poc.model.CategoryModel;
 import com.hcl_poc.model.ChangePasswordModel;
+import com.hcl_poc.model.IdentityNoModel;
 import com.hcl_poc.model.RecordEntryModel;
 import com.hcl_poc.model.RoleModel;
 import com.hcl_poc.model.SearchData;
 import com.hcl_poc.model.SubCategoryModel;
 import com.hcl_poc.model.UserModel;
 import com.hcl_poc.repository.CategoryRepository;
+import com.hcl_poc.repository.IdentityNoRepository;
 import com.hcl_poc.repository.RecordEntryRepository;
 import com.hcl_poc.repository.RoleRepository;
 import com.hcl_poc.repository.SearchItemRepository;
@@ -51,8 +54,8 @@ public class UserService {
 	SearchItemRepository searchRepo;
 	@Autowired
 	RecordEntryRepository recordRepo;
-	/*@Autowired
-	ResponseFormat responseTemplate;*/
+	@Autowired
+	IdentityNoRepository identitiesRepo;
 
 	// Register User
 	public ResponseFormat registerUser(UserModel data) {
@@ -321,6 +324,23 @@ public class UserService {
 //		} else {
 //			return null;
 //		}
+		return response;
+	}
+
+	public IdentitiesData getIdentities() {
+		IdentitiesData response = new IdentitiesData();;
+			List<IdentityNoModel> identities = identitiesRepo.findAll();
+			if(identities != null && (!identities.isEmpty())) {
+				response.setStatus(1);
+				response.setMessage("Identities List ");
+				response.setIdentities(identities);
+			}else {
+				response.setStatus(0);
+				response.setMessage("No Data available ");
+				response.setIdentities(identities);
+			}
+			
+		
 		return response;
 	}
 
