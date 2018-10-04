@@ -17,11 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hcl_poc.constant.Constants;
-import com.hcl_poc.dao.CategoryData;
-import com.hcl_poc.dao.IdentitiesData;
-import com.hcl_poc.dao.ReportsData;
-import com.hcl_poc.dao.ResponseFormat;
-import com.hcl_poc.dao.RoleData;
+import com.hcl_poc.dao.CategoryRepository;
+import com.hcl_poc.dao.IdentityNoRepository;
+import com.hcl_poc.dao.RecordEntryRepository;
+import com.hcl_poc.dao.RoleRepository;
+import com.hcl_poc.dao.SearchItemRepository;
+import com.hcl_poc.dao.SubCategoryRepository;
+import com.hcl_poc.dao.UserRepository;
 import com.hcl_poc.model.CategoryModel;
 import com.hcl_poc.model.ChangePasswordModel;
 import com.hcl_poc.model.IdentityNoModel;
@@ -30,13 +32,11 @@ import com.hcl_poc.model.RoleModel;
 import com.hcl_poc.model.SearchData;
 import com.hcl_poc.model.SubCategoryModel;
 import com.hcl_poc.model.UserModel;
-import com.hcl_poc.repository.CategoryRepository;
-import com.hcl_poc.repository.IdentityNoRepository;
-import com.hcl_poc.repository.RecordEntryRepository;
-import com.hcl_poc.repository.RoleRepository;
-import com.hcl_poc.repository.SearchItemRepository;
-import com.hcl_poc.repository.SubCategoryRepository;
-import com.hcl_poc.repository.UserRepository;
+import com.hcl_poc.response_model.CategoryData;
+import com.hcl_poc.response_model.IdentitiesData;
+import com.hcl_poc.response_model.ReportsData;
+import com.hcl_poc.response_model.ResponseFormat;
+import com.hcl_poc.response_model.RoleData;
 
 @Service
 public class UserService {
@@ -60,11 +60,17 @@ public class UserService {
 	// Register User
 	public ResponseFormat registerUser(UserModel data) {
 		String email = data.getEmailId();
-		//getting all users from database
+		// getting all users from database
 		ResponseFormat responseTemplate = new ResponseFormat();
-		List<UserModel> userList = repo.findAll();
-		boolean isEmail = userList.contains(email);
-		if (isEmail) {
+		//List<UserModel> userList = repo.findAll();
+		List<UserModel> existingUser = repo.findUserByEmailId(email);
+		//boolean isEmail = userList.contains(email);
+		if(existingUser != null && !existingUser.isEmpty()) {
+				responseTemplate.setStatus(0);
+				responseTemplate.setMessage("This email is already register ");
+				return responseTemplate;
+			}
+		/*if (isEmail) {
 			responseTemplate.setStatus(0);
 			responseTemplate.setMessage("This email is already register ");
 			return responseTemplate;
@@ -82,8 +88,22 @@ public class UserService {
 				return responseTemplate;
 				// return "Registration Failed";
 			}
-
+*/
+		else {
+			UserModel userData = repo.save(data);
+			if (userData != null) {
+				responseTemplate.setStatus(1);
+				responseTemplate.setMessage("You are successfully registered");
+				return responseTemplate;
+				// return "You have Successfully Registered";
+			} else {
+				responseTemplate.setStatus(0);
+				responseTemplate.setMessage("Registration Failed! Please try again ");
+				return responseTemplate;
+				// return "Registration Failed";
+			}
 		}
+	
 	}
 
 	// To find all users from DB
@@ -106,13 +126,13 @@ public class UserService {
 			} else {
 				responseTemplate.setStatus(0);
 				responseTemplate.setMessage("Please enter valid password ");
-				return responseTemplate;	
+				return responseTemplate;
 			}
 		} else {
 			responseTemplate.setStatus(0);
 			responseTemplate.setMessage("Please enter valid Email ");
 			return responseTemplate;
-			
+
 		}
 	}
 
@@ -138,14 +158,14 @@ public class UserService {
 	}
 
 	// Change user password
-	
 	public String changePassword(@Valid ChangePasswordModel pswdData) {
 		List<UserModel> userList = repo.findAll();
 		boolean isEmail = userList.contains(repo.getOne(pswdData.getEmail()));
 		if (isEmail) {
 			UserModel data = repo.findById(pswdData.getEmail()).get();
 
-			if (data.getEmailId().equals(pswdData.getEmail())&& pswdData.getOldPassword().trim().equals(data.getPassword().trim())) {
+			if (data.getEmailId().equals(pswdData.getEmail())
+					&& pswdData.getOldPassword().trim().equals(data.getPassword().trim())) {
 				data.setPassword(pswdData.getConfirmPassword());
 				repo.save(data);
 				return "Password changed successfully";
@@ -190,7 +210,7 @@ public class UserService {
 		} else {
 			response.setStatus(0);
 			response.setMessage("Please enter valid email");
-			
+
 		}
 
 		return response;
@@ -220,7 +240,7 @@ public class UserService {
 			// send message
 			Transport.send(message);
 			response.setStatus(1);
-			response.setMessage( "Mail sent Successfully");
+			response.setMessage("Mail sent Successfully");
 			System.out.println("Mail sent successfully");
 		} catch (MessagingException e) {
 			response.setStatus(0);
@@ -235,13 +255,13 @@ public class UserService {
 
 		List<RoleModel> roles = roleRepo.findAll();
 		RoleData data = new RoleData();
-		if(roles != null) {
+		if (roles != null) {
 			data.setStatus(1);
 			data.setMessage("Get All Roles");
 			data.setRoleList(roles);
-			
+
 		}
-		
+
 		return data;
 	}
 
@@ -262,42 +282,42 @@ public class UserService {
 	}
 
 	// Search Items List
-
 	public List<SearchData> getSearchListData() {
 		List<SearchData> searchData = searchRepo.findAll();
 		return searchData;
 	}
 
+	// Enter Record Functionality
 	public ResponseFormat enterRecord(RecordEntryModel entryData) {
-		
+
 		String email = entryData.getEmail_id();
-		//getting all users from database
+		// getting all users from database
 		ResponseFormat responseTemplate = new ResponseFormat();
 		List<UserModel> userList = repo.findAll();
 		boolean isEmail = userList.contains(email);
-		/*if (!isEmail) {
-			responseTemplate.setStatus(0);
-			responseTemplate.setMessage("Your email is invalid ");
+		/*
+		 * if (!isEmail) { responseTemplate.setStatus(0);
+		 * responseTemplate.setMessage("Your email is invalid "); return
+		 * responseTemplate;
+		 * 
+		 * } else {
+		 */
+		RecordEntryModel recordEntryModel = recordRepo.save(entryData);
+		if (recordEntryModel != null) {
+			responseTemplate.setStatus(1);
+			responseTemplate.setMessage("Your entry has been successfully submitted");
 			return responseTemplate;
+			// return "You have Successfully Registered";
+		} else {
+			responseTemplate.setStatus(0);
+			responseTemplate.setMessage("Your entry is failed! Please try again ");
+			return responseTemplate;
+			// return "Registration Failed";
+		}
 
-		} else {*/
-			RecordEntryModel recordEntryModel = recordRepo.save(entryData);
-			if (recordEntryModel != null) {
-				responseTemplate.setStatus(1);
-				responseTemplate.setMessage("Your entry has been successfully submitted");
-				return responseTemplate;
-				// return "You have Successfully Registered";
-			} else {
-				responseTemplate.setStatus(0);
-				responseTemplate.setMessage("Your entry is failed! Please try again ");
-				return responseTemplate;
-				// return "Registration Failed";
-			}
+		// }
 
-		//}
-		
 	}
-	
 
 	public ReportsData getAllRecords(String email) {
 		ReportsData response = null;
@@ -305,42 +325,74 @@ public class UserService {
 
 		List<RecordEntryModel> allData = recordRepo.findAll();
 		boolean isEmailExist = allData.contains(email);
-		//if (isEmailExist) {
-			if (allData != null && (!allData.isEmpty())) {
-				for (int i = 0; i < allData.size(); i++) {
-					if (allData.get(i).getEmail_id().trim().equals(email)) {
-						RecordEntryModel model = allData.get(i);
-						recordList.add(model);
-					}
+		// if (isEmailExist) {
+		if (allData != null && (!allData.isEmpty())) {
+			for (int i = 0; i < allData.size(); i++) {
+				if (allData.get(i).getEmail_id().trim().equals(email)) {
+					RecordEntryModel model = allData.get(i);
+					recordList.add(model);
 				}
 			}
-	
-			
-			response = new ReportsData();
-			response.setStatus(1);
-			response.setMessage("ReportList");
-			response.setRecordListData(recordList);
-			
-//		} else {
-//			return null;
-//		}
+		}
+
+		response = new ReportsData();
+		response.setStatus(1);
+		response.setMessage("ReportList");
+		response.setRecordListData(recordList);
+
 		return response;
 	}
 
+	// Get all identity numbers
 	public IdentitiesData getIdentities() {
-		IdentitiesData response = new IdentitiesData();;
-			List<IdentityNoModel> identities = identitiesRepo.findAll();
-			if(identities != null && (!identities.isEmpty())) {
-				response.setStatus(1);
-				response.setMessage("Identities List ");
-				response.setIdentities(identities);
-			}else {
-				response.setStatus(0);
-				response.setMessage("No Data available ");
-				response.setIdentities(identities);
+		IdentitiesData response = new IdentitiesData();
+		;
+		List<IdentityNoModel> identities = identitiesRepo.findAll();
+		if (identities != null && (!identities.isEmpty())) {
+			response.setStatus(1);
+			response.setMessage("Identities List ");
+			response.setIdentities(identities);
+		} else {
+			response.setStatus(0);
+			response.setMessage("No Data available ");
+			response.setIdentities(identities);
+		}
+
+		return response;
+	}
+
+	// Get Reports according entered item fields.
+	public ReportsData getMatchingRecord(@Valid RecordEntryModel data) {
+		ReportsData response = new ReportsData();
+		List<RecordEntryModel> recordList = null;
+		if (data != null) {
+			if (data.getEntryId() > 0) {
+				recordList = recordRepo.findReportByEntryId(data.getEntryId());
+			} else if (data.getName() != null && !data.getName().equals("")) {
+				recordList = recordRepo.findReportByName(data.getName());
+			} else if (data.getName() != null && !data.getNumber().equals("")) {
+				recordList = recordRepo.findReportByNumber(data.getNumber());
+			} else if (data.getName() != null && !data.getNumber1().equals("")) {
+				recordList = recordRepo.findReportByNumber1(data.getNumber1());
+			} else if (data.getName() != null && !data.getNumber2().equals("")) {
+				recordList = recordRepo.findReportByNumber2(data.getNumber2());
+			} else if (data.getName() != null && !data.getNumber3().equals("")) {
+				recordList = recordRepo.findReportByNumber3(data.getNumber3());
+			} else if (data.getAlphaNumberData() != null && !data.getAlphaNumberData().equals("")) {
+				recordList = recordRepo.findReportByAlphaNumberData(data.getAlphaNumberData());
 			}
-			
-		
+
+			if (recordList != null) {
+				response.setStatus(1);
+				response.setMessage("Report List");
+				response.setRecordListData(recordList);
+			} else {
+				response.setStatus(0);
+				response.setMessage("No data available");
+				response.setRecordListData(recordList);
+			}
+
+		}
 		return response;
 	}
 

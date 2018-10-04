@@ -1,4 +1,4 @@
-package com.hcl_poc.repository;
+package com.hcl_poc.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

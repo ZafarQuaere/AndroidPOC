@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hcl_poc.dao.CategoryData;
-import com.hcl_poc.dao.IdentitiesData;
-import com.hcl_poc.dao.ReportsData;
-import com.hcl_poc.dao.ResponseFormat;
-import com.hcl_poc.dao.RoleData;
 import com.hcl_poc.model.RecordEntryModel;
 import com.hcl_poc.model.SearchData;
 import com.hcl_poc.model.UserModel;
+import com.hcl_poc.response_model.CategoryData;
+import com.hcl_poc.response_model.IdentitiesData;
+import com.hcl_poc.response_model.ReportsData;
+import com.hcl_poc.response_model.ResponseFormat;
+import com.hcl_poc.response_model.RoleData;
 import com.hcl_poc.service.UserService;
 
 @RestController
@@ -105,6 +105,12 @@ public class UserController {
 	public List<SearchData> getSearchData(){
 		List<SearchData> searchList = service.getSearchListData();
 		return searchList;
+	}
+	
+	@PostMapping("/getReports")
+	public ReportsData getMatchingRecords(@Valid @RequestBody RecordEntryModel data) {
+		ReportsData recordList = service.getMatchingRecord(data);
+		return recordList;
 	}
 
 	@GetMapping("/getRecords/{email}")

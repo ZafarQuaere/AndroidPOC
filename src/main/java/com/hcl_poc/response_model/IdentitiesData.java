@@ -1,4 +1,4 @@
-package com.hcl_poc.dao;
+package com.hcl_poc.response_model;
 
 import java.util.List;
 
@@ -9,8 +9,6 @@ public class IdentitiesData {
 	private int status;
 	private String message;
 	private List<IdentityNoModel> identities;
-	
-	
 	
 	
 	public List<IdentityNoModel> getIdentities() {

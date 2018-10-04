@@ -1,5 +1,6 @@
 package com.hcl_poc.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -13,7 +14,8 @@ public class RecordEntryModel {
 	private String email_id;
 	@Id
 	@NotNull
-	private int entry_id;
+	@Column(name="entry_id")
+	private int entryId;
 	private String number;
 	private String number1;
 	private String number2;
@@ -25,11 +27,20 @@ public class RecordEntryModel {
 	private String number8;
 	private String number9;
 	private String number10;
-	private String alphanumber_data;
 	private String dropdown1;
 	private String dropdown2;
 	private String name;
 	
+	@Column(name="alphanumber_data")
+	private String alphaNumberData;
+
+	
+	public String getAlphaNumberData() {
+		return alphaNumberData;
+	}
+	public void setAlphaNumberData(String alphaNumberData) {
+		this.alphaNumberData = alphaNumberData;
+	}
 	public String getName() {
 		return name;
 	}
@@ -42,11 +53,13 @@ public class RecordEntryModel {
 	public void setEmail_id(String email_id) {
 		this.email_id = email_id;
 	}
-	public int getEntry_id() {
-		return entry_id;
+	
+	
+	public int getEntryId() {
+		return entryId;
 	}
-	public void setEntry_id(int entry_id) {
-		this.entry_id = entry_id;
+	public void setEntryId(int entryId) {
+		this.entryId = entryId;
 	}
 	public String getNumber() {
 		return number;
@@ -114,12 +127,7 @@ public class RecordEntryModel {
 	public void setNumber10(String number10) {
 		this.number10 = number10;
 	}
-	public String getAlphanumber_data() {
-		return alphanumber_data;
-	}
-	public void setAlphanumber_data(String alphanumber_data) {
-		this.alphanumber_data = alphanumber_data;
-	}
+
 	public String getDropdown1() {
 		return dropdown1;
 	}

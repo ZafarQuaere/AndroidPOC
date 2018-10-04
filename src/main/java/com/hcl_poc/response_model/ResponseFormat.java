@@ -1,4 +1,4 @@
-package com.hcl_poc.dao;
+package com.hcl_poc.response_model;
 
 public class ResponseFormat {
 
